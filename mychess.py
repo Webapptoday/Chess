@@ -1,68 +1,126 @@
 import streamlit as st
 import gspread
 from google.oauth2.service_account import Credentials
-from gspread.exceptions import SpreadsheetNotFound
+from PIL import Image
 import re
 
-# Set Streamlit page config
-st.set_page_config(page_title="ChessLegends", layout="centered")
-
-# Load Google Sheets credentials from secrets
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
+# Setup credentials
+creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
 client = gspread.authorize(creds)
+sheet = client.open("ChessLegends_Users").sheet1
 
-# Google Sheet name
-SHEET_NAME = "ChessLegends_Users"
+# Store session state
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "user_name" not in st.session_state:
+    st.session_state.user_name = ""
 
-# Create or get the worksheet
-@st.cache_resource
-def get_worksheet():
-    try:
-        sheet = client.open(SHEET_NAME)
-    except SpreadsheetNotFound:
-        # Auto-create if it doesn't exist
-        sheet = client.create(SHEET_NAME)
-        sheet.share(st.secrets["gcp_service_account"]["client_email"], perm_type="user", role="writer")
-    return sheet.sheet1
+# Images for coaches
+dhairya_img = Image.open("dhairya.png")
+shouri_img = Image.open("shouri.png")
 
-worksheet = get_worksheet()
+# Helper to validate inputs
+def is_valid_name(name):
+    return len(name.strip()) > 3
 
-# Page UI
-st.markdown("## ♟️ ChessLegends")
-st.markdown("### Sharpen Your Skills One Move at a Time")
-st.markdown("---")
+def is_valid_email(email):
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(email.split("@")[0]) > 3
 
-fullname = st.text_input("Full Name")
-email = st.text_input("Email Address")
+def save_user(name, email):
+    existing = sheet.get_all_records()
+    for row in existing:
+        if row["Email"] == email:
+            return True
+    sheet.append_row([name, email])
+    return True
 
-col1, col2 = st.columns(2)
+def login_screen():
+    st.title("♟️ Chess Legends")
+    st.subheader("Sharpen Your Game. Become a Legend.")
 
-with col1:
-    if st.button("Sign Up for an Account"):
-        # Validation
-        if len(fullname.strip()) < 3:
-            st.error("Full name must be at least 3 characters long.")
-            st.stop()
+    name = st.text_input("Full Name")
+    email = st.text_input("Email Address")
 
-        match = re.match(r"^([^@]{3,})@[^@]+\.[^@]+$", email)
-        if not match:
-            st.error("Enter a valid email address (minimum 3 characters before '@').")
-            st.stop()
+    if st.button("Sign Up / Login"):
+        if not is_valid_name(name):
+            st.error("Full Name must be more than 3 characters.")
+            return
+        if not is_valid_email(email):
+            st.error("Email must be valid and more than 3 characters before '@'.")
+            return
+        save_user(name, email)
+        st.session_state.logged_in = True
+        st.session_state.user_name = name
 
-        # Check if already signed up
-        records = worksheet.get_all_records()
-        if any(r["Email"] == email for r in records):
-            st.warning("This email is already registered. Please log in.")
-        else:
-            worksheet.append_row([fullname, email])
-            st.success("🎉 Account created successfully!")
+    st.markdown("Already signed up?")
+    if st.button("Log Out"):
+        st.session_state.logged_in = False
+        st.session_state.user_name = ""
 
-with col2:
-    if st.button("Log In"):
-        records = worksheet.get_all_records()
-        user = next((r for r in records if r["Email"] == email), None)
-        if user:
-            st.success(f"Welcome back, {user['Full Name']}!")
-        else:
-            st.error("No account found with this email.")
+def coach_card(name, img, bio, price, coach_key):
+    st.image(img, width=250)
+    st.markdown(f"### {name}")
+    st.markdown(bio)
+    st.markdown(f"**Price:** {price}")
+    if st.button(f"View {name}'s Profile", key=coach_key):
+        st.session_state["selected_coach"] = coach_key
+    st.markdown("---")
+
+def coach_profile(name, img, bio, price):
+    st.image(img, width=300)
+    st.markdown(f"## {name}")
+    st.markdown(bio)
+    st.markdown(f"**Price:** {price}")
+    st.markdown("### [📋 Register Now](https://docs.google.com/forms/d/1ofBOQYqdp8hRGIYKzPic2-sQIlsOokO9gq6PBzT7sxg/edit)", unsafe_allow_html=True)
+    if st.button("Back to Coaches"):
+        st.session_state["selected_coach"] = None
+
+def main_app():
+    st.sidebar.title(f"Welcome, {st.session_state.user_name}")
+    if st.sidebar.button("Log Out"):
+        st.session_state.logged_in = False
+        st.session_state.user_name = ""
+        return
+
+    selected = st.session_state.get("selected_coach")
+
+    if selected == "dhairya":
+        coach_profile(
+            name="Dhairya",
+            img=dhairya_img,
+            bio="State Chess Champion 2025. Strategic, fun-focused lessons.",
+            price="$20/session",
+        )
+    elif selected == "shouri":
+        coach_profile(
+            name="Shouri",
+            img=shouri_img,
+            bio="Tactical wizard with top 1% national ranking. Inspires passion.",
+            price="$25/session",
+        )
+    else:
+        st.title("🧠 Choose Your Chess Coach")
+        st.write("Learn from the best. Tap a card to see details and sign up.")
+        col1, col2 = st.columns(2)
+        with col1:
+            coach_card(
+                name="Dhairya",
+                img=dhairya_img,
+                bio="State Champion | Kids Welcome | Fun + Strategy",
+                price="$20/session",
+                coach_key="dhairya"
+            )
+        with col2:
+            coach_card(
+                name="Shouri",
+                img=shouri_img,
+                bio="Top 1% Tactics | Deep Theory | Rapid Growth",
+                price="$25/session",
+                coach_key="shouri"
+            )
+
+# App entry point
+if st.session_state.logged_in:
+    main_app()
+else:
+    login_screen()
