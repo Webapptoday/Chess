@@ -1,116 +1,68 @@
 import streamlit as st
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
+from gspread.exceptions import SpreadsheetNotFound
+import re
 
-# ---------------- Google Sheets Auth via st.secrets ----------------
+# Set Streamlit page config
+st.set_page_config(page_title="ChessLegends", layout="centered")
+
+# Load Google Sheets credentials from secrets
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
+client = gspread.authorize(creds)
+
+# Google Sheet name
+SHEET_NAME = "ChessLegends_Users"
+
+# Create or get the worksheet
 @st.cache_resource
 def get_worksheet():
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/drive"
-    ]
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(
-        dict(st.secrets["google_service_account"]), scope
-    )
-    client = gspread.authorize(creds)
-    return client.open("chesslegends_users").sheet1
+    try:
+        sheet = client.open(SHEET_NAME)
+    except SpreadsheetNotFound:
+        # Auto-create if it doesn't exist
+        sheet = client.create(SHEET_NAME)
+        sheet.share(st.secrets["gcp_service_account"]["client_email"], perm_type="user", role="writer")
+    return sheet.sheet1
 
-sheet = get_worksheet()
+worksheet = get_worksheet()
 
-# ---------------- User Data Helpers ----------------
-@st.cache_data(ttl=60)
-def load_users():
-    records = sheet.get_all_records()
-    return {record['Email']: record['Full Name'] for record in records}
+# Page UI
+st.markdown("## ♟️ ChessLegends")
+st.markdown("### Sharpen Your Skills One Move at a Time")
+st.markdown("---")
 
-def add_user(name, email):
-    sheet.append_row([name, email])
+fullname = st.text_input("Full Name")
+email = st.text_input("Email Address")
 
-# ---------------- Session State ----------------
-if "logged_in_user" not in st.session_state:
-    st.session_state.logged_in_user = None
-if "page" not in st.session_state:
-    st.session_state.page = "login"
+col1, col2 = st.columns(2)
 
-# ---------------- Screens ----------------
-def login_screen():
-    st.title("♟ ChessLegends")
-    st.subheader("Sharpen Your Skills One Move at a Time")
+with col1:
+    if st.button("Sign Up for an Account"):
+        # Validation
+        if len(fullname.strip()) < 3:
+            st.error("Full name must be at least 3 characters long.")
+            st.stop()
 
-    name = st.text_input("Full Name", key="name_input")
-    email = st.text_input("Email Address", key="email_input")
-    users = load_users()
+        match = re.match(r"^([^@]{3,})@[^@]+\.[^@]+$", email)
+        if not match:
+            st.error("Enter a valid email address (minimum 3 characters before '@').")
+            st.stop()
 
-    email_username = email.split("@")[0] if "@" in email else ""
-
-    # Validation logic
-    name_valid = len(name.strip()) > 3
-    email_valid = len(email_username) > 3 and "@" in email and "." in email
-
-    if st.button("Sign Up"):
-        if not name_valid:
-            st.error("Full name must be more than 3 characters.")
-        if not email_valid:
-            st.error("Email must be valid and have more than 3 characters before '@'.")
-        if name_valid and email_valid:
-            if email not in users:
-                add_user(name.strip(), email.strip())
-                st.success("Account created!")
-                st.session_state.logged_in_user = email
-                st.session_state.page = "dashboard"
-                st.rerun()
-            else:
-                st.warning("Account already exists. Please log in.")
-
-    if st.button("Log In"):
-        if not email_valid:
-            st.error("Please enter a valid email.")
-        elif email in users:
-            st.session_state.logged_in_user = email
-            st.session_state.page = "dashboard"
-            st.rerun()
+        # Check if already signed up
+        records = worksheet.get_all_records()
+        if any(r["Email"] == email for r in records):
+            st.warning("This email is already registered. Please log in.")
         else:
-            st.error("Account not found.")
+            worksheet.append_row([fullname, email])
+            st.success("🎉 Account created successfully!")
 
-def dashboard():
-    users = load_users()
-    name = users.get(st.session_state.logged_in_user, "Coach")
-    st.title(f"Welcome, {name}!")
-    st.write("Select a coach to view pricing:")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("Coach Dhairya")
-        st.write("National Champion • Opening Theory")
-        if st.button("View Dhairya's Pricing"):
-            st.session_state.page = "pricing_dhairya"
-
-    with col2:
-        st.subheader("Coach Shouri")
-        st.write("Endgame Expert • Puzzle Master")
-        if st.button("View Shouri's Pricing"):
-            st.session_state.page = "pricing_shouri"
-
-    st.markdown("---")
-    if st.button("Log Out"):
-        st.session_state.logged_in_user = None
-        st.session_state.page = "login"
-        st.rerun()
-
-def pricing(coach_name):
-    st.title(f"{coach_name} - Pricing")
-    st.markdown("💵 **$25/hour** coaching")
-    st.markdown("✅ Personalized training\n✅ Weekly assignments\n✅ Tactics and game review")
-    if st.button("⬅ Back to Coaches"):
-        st.session_state.page = "dashboard"
-
-# ---------------- Routing ----------------
-if not st.session_state.logged_in_user:
-    login_screen()
-elif st.session_state.page == "dashboard":
-    dashboard()
-elif st.session_state.page == "pricing_dhairya":
-    pricing("Coach Dhairya")
-elif st.session_state.page == "pricing_shouri":
-    pricing("Coach Shouri")
+with col2:
+    if st.button("Log In"):
+        records = worksheet.get_all_records()
+        user = next((r for r in records if r["Email"] == email), None)
+        if user:
+            st.success(f"Welcome back, {user['Full Name']}!")
+        else:
+            st.error("No account found with this email.")
