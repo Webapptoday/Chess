@@ -52,3 +52,36 @@ if st.session_state.logged_in_user:
     welcome_screen()
 else:
     login_screen()
+/* Overall App Background */
+body {
+    background-color: #ffffff;
+}
+
+/* Header */
+.header {
+    font-size: 2.5em;
+    font-weight: bold;
+    text-align: center;
+    padding: 1rem;
+    color: #0066cc;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 1rem;
+}
+
+/* Form Container */
+.form-container {
+    padding: 2rem;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    max-width: 500px;
+    margin: 0 auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+/* Buttons */
+button {
+    background-color: #0077cc !important;
+    color: white !important;
+    border-radius: 10px !important;
+    font-weight: bold !important;
+}
