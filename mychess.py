@@ -1,127 +1,72 @@
 import streamlit as st
+from PIL import Image
 import gspread
 from google.oauth2.service_account import Credentials
-from PIL import Image
-import re
 
-# Setup credentials
-scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scopes)
+# Setup Google Sheets credentials
+creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
 client = gspread.authorize(creds)
 sheet = client.open("ChessLegends_Users").sheet1
 
-# Store session state
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "user_name" not in st.session_state:
-    st.session_state.user_name = ""
+# Page navigation
+page = st.sidebar.selectbox("Go to", ["Home", "Dhairya", "Shouri"])
 
-# Images for coaches
-dhairya_img = Image.open("dhairya.png")
-shouri_img = Image.open("shouri.png")
+def show_coach_profile(name, image_file, description, price):
+    st.title(name)
+    st.image(image_file, use_column_width=True)
+    st.subheader("About")
+    st.write(description)
+    st.subheader("Price")
+    st.write(price)
+    st.markdown(
+        '[📋 Register Now](https://docs.google.com/forms/d/1ofBOQYqdp8hRGIYKzPic2-sQIlsOokO9gq6PBzT7sxg)',
+        unsafe_allow_html=True,
+    )
 
-# Helper to validate inputs
-def is_valid_name(name):
-    return len(name.strip()) > 3
+if page == "Home":
+    st.title("Welcome to Chess Legends")
 
-def is_valid_email(email):
-    return re.match(r"[^@]+@[^@]+\.[^@]+", email) and len(email.split("@")[0]) > 3
+    st.subheader("Create Account")
 
-def save_user(name, email):
-    existing = sheet.get_all_records()
-    for row in existing:
-        if row["Email"] == email:
-            return True
-    sheet.append_row([name, email])
-    return True
+    name = st.text_input("Enter your name")
+    email = st.text_input("Enter your email (example@example.com)")
 
-def login_screen():
-    st.title("♟️ Chess Legends")
-    st.subheader("Sharpen Your Game. Become a Legend.")
+    # Simple validation
+    if st.button("Sign Up"):
+        if len(name) < 3:
+            st.error("Name must be at least 3 characters.")
+        elif len(email.split("@")[0]) < 3 or not email.endswith("@example.com"):
+            st.error("Email must be in the format ***@example.com with at least 3 characters before @.")
+        else:
+            sheet.append_row([name, email])
+            st.success("Account created successfully!")
 
-    name = st.text_input("Full Name")
-    email = st.text_input("Email Address")
+    st.subheader("Choose Your Coach")
 
-    if st.button("Sign Up / Login"):
-        if not is_valid_name(name):
-            st.error("Full Name must be more than 3 characters.")
-            return
-        if not is_valid_email(email):
-            st.error("Email must be valid and more than 3 characters before '@'.")
-            return
-        save_user(name, email)
-        st.session_state.logged_in = True
-        st.session_state.user_name = name
+    col1, col2 = st.columns(2)
+    with col1:
+        st.image("fcb23e8f-e35d-49fe-9b5d-855cbfe24d1f.png", caption="Dhairya")
+        if st.button("Meet Dhairya"):
+            st.session_state.page = "Dhairya"
+            st.experimental_rerun()
+    with col2:
+        st.image("5ad12b44-462e-42a6-87f2-85545ab5c56b.png", caption="Shouri")
+        if st.button("Meet Shouri"):
+            st.session_state.page = "Shouri"
+            st.experimental_rerun()
 
-    st.markdown("Already signed up?")
-    if st.button("Log Out"):
-        st.session_state.logged_in = False
-        st.session_state.user_name = ""
+elif page == "Dhairya":
+    show_coach_profile(
+        "Coach Dhairya",
+        "fcb23e8f-e35d-49fe-9b5d-855cbfe24d1f.png",
+        "Dhairya is an experienced chess player and coach.",
+        "$20/hr",
+    )
 
-def coach_card(name, img, bio, price, coach_key):
-    st.image(img, width=250)
-    st.markdown(f"### {name}")
-    st.markdown(bio)
-    st.markdown(f"**Price:** {price}")
-    if st.button(f"View {name}'s Profile", key=coach_key):
-        st.session_state["selected_coach"] = coach_key
-    st.markdown("---")
-
-def coach_profile(name, img, bio, price):
-    st.image(img, width=300)
-    st.markdown(f"## {name}")
-    st.markdown(bio)
-    st.markdown(f"**Price:** {price}")
-    st.markdown("### [📋 Register Now](https://docs.google.com/forms/d/1ofBOQYqdp8hRGIYKzPic2-sQIlsOokO9gq6PBzT7sxg/edit)", unsafe_allow_html=True)
-    if st.button("Back to Coaches"):
-        st.session_state["selected_coach"] = None
-
-def main_app():
-    st.sidebar.title(f"Welcome, {st.session_state.user_name}")
-    if st.sidebar.button("Log Out"):
-        st.session_state.logged_in = False
-        st.session_state.user_name = ""
-        return
-
-    selected = st.session_state.get("selected_coach")
-
-    if selected == "dhairya":
-        coach_profile(
-            name="Dhairya",
-            img=dhairya_img,
-            bio="State Chess Champion 2025. Strategic, fun-focused lessons.",
-            price="$20/session",
-        )
-    elif selected == "shouri":
-        coach_profile(
-            name="Shouri",
-            img=shouri_img,
-            bio="Tactical wizard with top 1% national ranking. Inspires passion.",
-            price="$25/session",
-        )
-    else:
-        st.title("🧠 Choose Your Chess Coach")
-        st.write("Learn from the best. Tap a card to see details and sign up.")
-        col1, col2 = st.columns(2)
-        with col1:
-            coach_card(
-                name="Dhairya",
-                img=dhairya_img,
-                bio="State Champion | Kids Welcome | Fun + Strategy",
-                price="$20/session",
-                coach_key="dhairya"
-            )
-        with col2:
-            coach_card(
-                name="Shouri",
-                img=shouri_img,
-                bio="Top 1% Tactics | Deep Theory | Rapid Growth",
-                price="$25/session",
-                coach_key="shouri"
-            )
-
-# App entry point
-if st.session_state.logged_in:
-    main_app()
-else:
-    login_screen()
+elif page == "Shouri":
+    show_coach_profile(
+        "Coach Shouri",
+        "5ad12b44-462e-42a6-87f2-85545ab5c56b.png",
+        "Shouri is a fun and strategic chess instructor.",
+        "$18/hr",
+    )
