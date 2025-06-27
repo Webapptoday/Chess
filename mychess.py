@@ -1,24 +1,23 @@
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import json
 
-# -------------------- Google Sheets Setup --------------------
+# ---------------- Google Sheets Auth via st.secrets ----------------
 @st.cache_resource
 def get_worksheet():
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive"
     ]
-    creds_dict = dict(st.secrets["google_service_account"])
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        dict(st.secrets["google_service_account"]), scope
+    )
     client = gspread.authorize(creds)
-    sheet = client.open("chesslegends_users").sheet1
-    return sheet
+    return client.open("chesslegends_users").sheet1
 
 sheet = get_worksheet()
 
-# -------------------- Helpers --------------------
+# ---------------- User Data Helpers ----------------
 @st.cache_data(ttl=60)
 def load_users():
     records = sheet.get_all_records()
@@ -27,35 +26,46 @@ def load_users():
 def add_user(name, email):
     sheet.append_row([name, email])
 
-# -------------------- Session State --------------------
+# ---------------- Session State ----------------
 if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
-# -------------------- Screens --------------------
+# ---------------- Screens ----------------
 def login_screen():
     st.title("♟ ChessLegends")
     st.subheader("Sharpen Your Skills One Move at a Time")
-    name = st.text_input("Full Name")
-    email = st.text_input("Email Address")
+
+    name = st.text_input("Full Name", key="name_input")
+    email = st.text_input("Email Address", key="email_input")
     users = load_users()
 
+    email_username = email.split("@")[0] if "@" in email else ""
+
+    # Validation logic
+    name_valid = len(name.strip()) > 3
+    email_valid = len(email_username) > 3 and "@" in email and "." in email
+
     if st.button("Sign Up"):
-        if name and email:
+        if not name_valid:
+            st.error("Full name must be more than 3 characters.")
+        if not email_valid:
+            st.error("Email must be valid and have more than 3 characters before '@'.")
+        if name_valid and email_valid:
             if email not in users:
-                add_user(name, email)
+                add_user(name.strip(), email.strip())
                 st.success("Account created!")
                 st.session_state.logged_in_user = email
                 st.session_state.page = "dashboard"
                 st.rerun()
             else:
                 st.warning("Account already exists. Please log in.")
-        else:
-            st.warning("Please enter both fields.")
 
     if st.button("Log In"):
-        if email in users:
+        if not email_valid:
+            st.error("Please enter a valid email.")
+        elif email in users:
             st.session_state.logged_in_user = email
             st.session_state.page = "dashboard"
             st.rerun()
@@ -69,16 +79,17 @@ def dashboard():
     st.write("Select a coach to view pricing:")
 
     col1, col2 = st.columns(2)
+
     with col1:
         st.subheader("Coach Dhairya")
         st.write("National Champion • Opening Theory")
-        if st.button("Dhairya's Pricing"):
+        if st.button("View Dhairya's Pricing"):
             st.session_state.page = "pricing_dhairya"
 
     with col2:
         st.subheader("Coach Shouri")
         st.write("Endgame Expert • Puzzle Master")
-        if st.button("Shouri's Pricing"):
+        if st.button("View Shouri's Pricing"):
             st.session_state.page = "pricing_shouri"
 
     st.markdown("---")
@@ -94,7 +105,7 @@ def pricing(coach_name):
     if st.button("⬅ Back to Coaches"):
         st.session_state.page = "dashboard"
 
-# -------------------- Router --------------------
+# ---------------- Routing ----------------
 if not st.session_state.logged_in_user:
     login_screen()
 elif st.session_state.page == "dashboard":
