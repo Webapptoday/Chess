@@ -2,9 +2,16 @@ import streamlit as st
 from PIL import Image
 import gspread
 from google.oauth2.service_account import Credentials
+import streamlit as st
+import json
 
-# Setup Google Sheets credentials
-creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
+# Load credentials from Streamlit secrets
+creds_dict = st.secrets["gcp_service_account"]
+credentials = Credentials.from_service_account_info(dict(creds_dict))
+
+client = gspread.authorize(credentials)
+sheet = client.open("ChessLegends_Users").sheet1
+
 client = gspread.authorize(creds)
 sheet = client.open("ChessLegends_Users").sheet1
 
