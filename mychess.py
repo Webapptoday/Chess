@@ -1,79 +1,66 @@
 import streamlit as st
-from PIL import Image
 import gspread
 from google.oauth2.service_account import Credentials
-import streamlit as st
 import json
+import re
 
-# Load credentials from Streamlit secrets
-creds_dict = st.secrets["gcp_service_account"]
-credentials = Credentials.from_service_account_info(dict(creds_dict))
+# Set up page layout
+st.set_page_config(page_title="Chess Legends", layout="centered")
 
-client = gspread.authorize(credentials)
-sheet = client.open("ChessLegends_Users").sheet1
+st.markdown("""
+    <style>
+        body { background-color: #e6f0ff; }
+        .stApp { background-color: #e6f0ff; }
+        .title { color: #003366; font-size: 2.5em; font-weight: bold; }
+        .error-text { color: red; }
+    </style>
+""", unsafe_allow_html=True)
 
+# Setup Google Sheets credentials from Streamlit Secrets
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+creds_dict = json.loads(st.secrets["GOOGLE_SERVICE_ACCOUNT"])
+creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
 client = gspread.authorize(creds)
 sheet = client.open("ChessLegends_Users").sheet1
 
-# Page navigation
-page = st.sidebar.selectbox("Go to", ["Home", "Dhairya", "Shouri"])
-
-def show_coach_profile(name, image_file, description, price):
-    st.title(name)
-    st.image(image_file, use_column_width=True)
-    st.subheader("About")
-    st.write(description)
-    st.subheader("Price")
-    st.write(price)
-    st.markdown(
-        '[📋 Register Now](https://docs.google.com/forms/d/1ofBOQYqdp8hRGIYKzPic2-sQIlsOokO9gq6PBzT7sxg)',
-        unsafe_allow_html=True,
-    )
+# Navigation
+page = st.sidebar.radio("Navigate", ["Home", "Coaches", "Register"])
 
 if page == "Home":
-    st.title("Welcome to Chess Legends")
+    st.markdown('<h1 class="title">♟️ Welcome to Chess Legends</h1>', unsafe_allow_html=True)
+    st.write("Join our interactive chess camp and train with champions.")
+    st.markdown("[📝 Register Now (Google Form)](https://docs.google.com/forms/d/1ofBOQYqdp8hRGIYKzPic2-sQIlsOokO9gq6PBzT7sxg/viewform)", unsafe_allow_html=True)
 
-    st.subheader("Create Account")
-
-    name = st.text_input("Enter your name")
-    email = st.text_input("Enter your email (example@example.com)")
-
-    # Simple validation
-    if st.button("Sign Up"):
-        if len(name) < 3:
-            st.error("Name must be at least 3 characters.")
-        elif len(email.split("@")[0]) < 3 or not email.endswith("@example.com"):
-            st.error("Email must be in the format ***@example.com with at least 3 characters before @.")
-        else:
-            sheet.append_row([name, email])
-            st.success("Account created successfully!")
-
-    st.subheader("Choose Your Coach")
+elif page == "Coaches":
+    st.markdown('<h1 class="title">Meet Our Coaches</h1>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
-        st.image("fcb23e8f-e35d-49fe-9b5d-855cbfe24d1f.png", caption="Dhairya")
-        if st.button("Meet Dhairya"):
-            st.session_state.page = "Dhairya"
-            st.experimental_rerun()
+        st.subheader("Dhairya Mehta")
+        st.image("Dhairya Mehta.png", caption="State Champion", use_column_width=True)
+        st.markdown("[💵 $25/hr - Register Now](https://docs.google.com/forms/d/1ofBOQYqdp8hRGIYKzPic2-sQIlsOokO9gq6PBzT7sxg/viewform)", unsafe_allow_html=True)
+
     with col2:
-        st.image("5ad12b44-462e-42a6-87f2-85545ab5c56b.png", caption="Shouri")
-        if st.button("Meet Shouri"):
-            st.session_state.page = "Shouri"
-            st.experimental_rerun()
+        st.subheader("Shouri")
+        st.image("Shouri.png", caption="Tactical Finalist", use_column_width=True)
+        st.markdown("[💵 $25/hr - Register Now](https://docs.google.com/forms/d/1ofBOQYqdp8hRGIYKzPic2-sQIlsOokO9gq6PBzT7sxg/viewform)", unsafe_allow_html=True)
 
-elif page == "Dhairya":
-    show_coach_profile(
-        "Coach Dhairya",
-        "fcb23e8f-e35d-49fe-9b5d-855cbfe24d1f.png",
-        "Dhairya is an experienced chess player and coach.",
-        "$20/hr",
-    )
+elif page == "Register":
+    st.markdown('<h1 class="title">📋 Register Here</h1>', unsafe_allow_html=True)
+    name = st.text_input("Enter your full name")
+    email = st.text_input("Enter your email (must be at least 4 characters before @example.com)")
 
-elif page == "Shouri":
-    show_coach_profile(
-        "Coach Shouri",
-        "5ad12b44-462e-42a6-87f2-85545ab5c56b.png",
-        "Shouri is a fun and strategic chess instructor.",
-        "$18/hr",
-    )
+    name_valid = len(name.strip()) > 3
+    email_valid = re.match(r"^[^@]{4,}@example\.com$", email.strip())
+
+    if st.button("Submit"):
+        if not name_valid:
+            st.error("❌ Name must be more than 3 characters.")
+        if not email_valid:
+            st.error("❌ Email must have at least 4 characters before '@example.com'.")
+        if name_valid and email_valid:
+            sheet.append_row([name, email])
+            st.success("✅ Registration successful!")
+
+    st.markdown("---")
+    st.markdown("[📝 Or register using Google Form](https://docs.google.com/forms/d/1ofBOQYqdp8hRGIYKzPic2-sQIlsOokO9gq6PBzT7sxg/viewform)", unsafe_allow_html=True)
