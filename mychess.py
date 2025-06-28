@@ -9,5 +9,5 @@ creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
 
 # Connect to Google Sheets
 client = gspread.authorize(creds)
-sheet = client.open("ChessLegends Users").sheet1
+sheet = client.open_by_key("10-YFBO0ILhR3T8aL8j6oBctaCZifKqxcSuNdzmfTNG0").sheet1
 
