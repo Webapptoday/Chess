@@ -1,89 +1,82 @@
 import streamlit as st
+from PIL import Image
+import requests
+from io import BytesIO
 
-st.set_page_config(page_title="Chess Legends", layout="wide")
+# Set page config
+st.set_page_config(
+    page_title="Chess Legends",
+    page_icon="♟️",
+    layout="wide",
+)
 
-# Custom CSS
+# Sidebar navigation
 st.markdown(
     """
     <style>
-        .block-container {
+        .css-1544g2n {padding-top: 1rem;}
+        .css-1d391kg, .css-1avcm0n {font-size: 1.2rem !important;}
+        .sidebar .sidebar-content {
             padding-top: 2rem;
         }
-        .stImage > img {
-            border-radius: 12px;
+        .block-container {
+            padding-top: 1rem;
         }
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
-# Sidebar Navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["About", "Coaches", "Pricing", "Contact"])
+# Load logo
+logo_url = "https://i.postimg.cc/vBZcwTSH/Chat-GPT-Image-Jul-2-2025-10-04-14-AM.png"
+response = requests.get(logo_url)
+logo = Image.open(BytesIO(response.content))
 
-# About Section
-if page == "About":
-    st.title("Welcome to Chess Legends")
-    st.write("Train with top-rated youth players and experienced coaches. Build your tactics, strategy, and confidence over the board.")
+with st.sidebar:
+    st.image(logo, use_column_width=True)
+    page = st.radio("Navigate", ["Home", "About Us", "Chess"])
 
-# Coaches Section
-elif page == "Coaches":
-    with st.expander("Meet Our Coaches", expanded=True):
-        col1, col2 = st.columns(2)
+# Home Page
+if page == "Home":
+    st.title("Welcome to Chess Legends ♟️")
+    st.write("""
+        We offer personalized online chess coaching from experienced youth tournament players.
+        
+        - Weekend group sessions  
+        - USCF tournament preparation  
+        - Opening/Endgame/Thematic tactics  
+    """)
 
-        # Dhairya (left)
-        with col1:
-            st.image(
-                "https://i.postimg.cc/5yYQhDY7/Untitled-design-2025-07-02-T093341-074.png",
-                caption="Dhairya Mehta (USCF 2150)",
-                use_container_width=True
-            )
-            st.write("Over 150 tournaments • Summer camp coach")
-            st.markdown("""
-            My name is Dhairya Mehta, and I’m a 14-year-old chess player with a deep passion for the game.  
-            I currently hold a USCF rating of 2150 and have competed in over 150 tournaments across the country.  
-            Chess has been a big part of my life for many years, and I love both the strategy and the challenge it brings.
+# About Us Page
+elif page == "About Us":
+    st.title("Meet Our Coaches")
 
-            In addition to playing competitively, I enjoy teaching others and sharing what I’ve learned.  
-            I’ve run a chess summer camp, where I coached younger players in a fun and supportive environment,  
-            and I’ve also conducted one-on-one coaching sessions with students looking to improve their game.
+    col1, col2 = st.columns(2)
 
-            Whether you’re just starting out or looking to take your skills to the next level,  
-            I’m excited to help you grow and enjoy the game as much as I do.
-            """)
+    with col1:
+        shouri_url = "https://i.postimg.cc/d3bZwnGq/Untitled-design-2025-07-02-T093312-238.png"
+        response1 = requests.get(shouri_url)
+        shouri_img = Image.open(BytesIO(response1.content))
+        st.image(shouri_img, caption="Shouri Mosaaliganti (USCF 1700)", use_column_width=True)
 
-        # Shouri (right)
-        with col2:
-            st.image(
-                "https://i.postimg.cc/d3bZwnGq/Untitled-design-2025-07-02-T093312-238.png",
-                caption="Shouri Mosaliganti (USCF 1700)",
-                use_container_width=True
-            )
-            st.write("180+ tournaments • Experienced youth coach")
-            st.markdown("""
-            Hi, I’m Shouri! I’m a 14-year-old chess player with a current USCF rating of 1700  
-            and a deep love for the game. I’ve played in over 180 chess tournaments,  
-            gaining valuable experience and learning from every match.
+        st.markdown("""
+        Hi, I’m **Shouri**! I’m a 14-year-old chess player with a current USCF rating of 1700 and a deep love for the game.
+        I’ve played in over 180 chess tournaments, gaining valuable experience and learning from every match.
 
-            Whether it’s sharp tactics or long strategic battles,  
-            I enjoy all aspects of chess and am always striving to improve.
+        In addition to competing, I also work as a part-time chess coach, helping students strengthen their fundamentals,
+        think more critically, and build confidence at the board. I enjoy teaching players of all levels and sharing the excitement 
+        and beauty of the game.
+        """)
 
-            In addition to competing, I also work as a part-time chess coach,  
-            helping students strengthen their fundamentals, think more critically,  
-            and build confidence at the board.
+    with col2:
+        dhairya_url = "https://i.postimg.cc/5yYQhDY7/Untitled-design-2025-07-02-T093341-074.png"
+        response2 = requests.get(dhairya_url)
+        dhairya_img = Image.open(BytesIO(response2.content))
+        st.image(dhairya_img, caption="Dhairya Mehta (USCF 2150)", use_column_width=True)
 
-            I enjoy teaching players of all levels and sharing the excitement and beauty of the game.
-            """)
+        st.markdown("""
+        My name is **Dhairya Mehta**, and I’m a 14-year-old chess player with a deep passion for the game.
+        I currently hold a USCF rating of 2150 and have competed in over 150 tournaments across the country.
 
-# Pricing Section
-elif page == "Pricing":
-    with st.expander("Pricing", expanded=True):
-        st.write("🏷️ **$25/hr - Group lessons**")
-        st.write("🎯 **$40/hr - Private coaching**")
-        st.write("💡 Discounts available for bulk bookings.")
-
-# Contact Section
-elif page == "Contact":
-    with st.expander("Contact Us", expanded=True):
-        st.write("📧 chesslegends@example.com")
-        st.write("📍 Based in Massachusetts, USA")
+        In addition to playing competitively, I enjoy teaching others and sharing what I’ve learned.
+        I’ve run a
