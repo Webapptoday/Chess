@@ -49,7 +49,7 @@ elif page == "About Us":
 
     # Shouri (LEFT COLUMN)
     with col1:
-        shouri_url = "https://i.postimg.cc/d3bZwnGq/Untitled-design-2025-07-02-T093312-238.png"
+        shouri_url = "https://i.postimg.cc/5yYQhDY7/Untitled-design-2025-07-02-T093341-074.png"
         response1 = requests.get(shouri_url)
         shouri_img = Image.open(BytesIO(response1.content))
         st.image(shouri_img, caption="Shouri Mosaliganti (USCF 1700)", use_container_width=True)
@@ -69,7 +69,7 @@ and beauty of the game.
 
     # Dhairya (RIGHT COLUMN)
     with col2:
-        dhairya_url = "https://i.postimg.cc/5yYQhDY7/Untitled-design-2025-07-02-T093341-074.png"
+        dhairya_url = "https://i.postimg.cc/d3bZwnGq/Untitled-design-2025-07-02-T093312-238.png"
         response2 = requests.get(dhairya_url)
         dhairya_img = Image.open(BytesIO(response2.content))
         st.image(dhairya_img, caption="Dhairya Mehta (USCF 2150)", use_container_width=True)
