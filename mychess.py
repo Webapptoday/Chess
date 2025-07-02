@@ -64,7 +64,7 @@ In addition to competing, I also work as a part-time chess coach, helping studen
 think more critically, and build confidence at the board. I enjoy teaching players of all levels and sharing the excitement  
 and beauty of the game.  
 
-📧 28stu521@lexingtonma.org | 📱 857-214-9563
+📧 shourimosaliganti@gmail.com | 📱 857-214-9563
 """)
 
     # Dhairya (RIGHT COLUMN)
