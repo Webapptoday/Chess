@@ -68,12 +68,27 @@ elif page == "About Us":
         and beauty of the game.
         """)
 
-   with col2:
+  col1, col2 = st.columns(2)
+
+with col1:
+    shouri_url = "https://i.postimg.cc/d3bZwnGq/Untitled-design-2025-07-02-T093312-238.png"
+    response1 = requests.get(shouri_url)
+    shouri_img = Image.open(BytesIO(response1.content))
+    st.image(shouri_img, caption="Shouri Mosaliganti (USCF 1700)", use_column_width=True)
+    st.markdown("""
+    Hi, I’m **Shouri**! I’m a 14-year-old chess player with a current USCF rating of 1700 and a deep love for the game.
+    I’ve played in over 180 chess tournaments, gaining valuable experience and learning from every match.
+
+    In addition to competing, I also work as a part-time chess coach, helping students strengthen their fundamentals,
+    think more critically, and build confidence at the board. I enjoy teaching players of all levels and sharing the excitement
+    and beauty of the game.
+    """)
+
+with col2:
     dhairya_url = "https://i.postimg.cc/5yYQhDY7/Untitled-design-2025-07-02-T093341-074.png"
     response2 = requests.get(dhairya_url)
     dhairya_img = Image.open(BytesIO(response2.content))
     st.image(dhairya_img, caption="Dhairya Mehta (USCF 2150)", use_column_width=True)
-
     st.markdown("""
     My name is Dhairya Mehta, and I’m a 14-year-old chess player with a deep passion for the game.
     I currently hold a USCF rating of 2150 and have competed in over 150 tournaments across the country.
@@ -83,4 +98,4 @@ elif page == "About Us":
     and I’ve also conducted one-on-one coaching sessions with students looking to improve their game.
     Whether you’re just starting out or looking to take your skills to the next level,
     I’m excited to help you grow and enjoy the game as much as I do.
-    """)  # 👈 THIS closes the markdown block
+    """)
