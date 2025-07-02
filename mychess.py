@@ -68,15 +68,19 @@ elif page == "About Us":
         and beauty of the game.
         """)
 
-    with col2:
-        dhairya_url = "https://i.postimg.cc/5yYQhDY7/Untitled-design-2025-07-02-T093341-074.png"
-        response2 = requests.get(dhairya_url)
-        dhairya_img = Image.open(BytesIO(response2.content))
-        st.image(dhairya_img, caption="Dhairya Mehta (USCF 2150)", use_column_width=True)
+   with col2:
+    dhairya_url = "https://i.postimg.cc/5yYQhDY7/Untitled-design-2025-07-02-T093341-074.png"
+    response2 = requests.get(dhairya_url)
+    dhairya_img = Image.open(BytesIO(response2.content))
+    st.image(dhairya_img, caption="Dhairya Mehta (USCF 2150)", use_column_width=True)
 
-        st.markdown("""
-        My name is **Dhairya Mehta**, and I’m a 14-year-old chess player with a deep passion for the game.
-        I currently hold a USCF rating of 2150 and have competed in over 150 tournaments across the country.
+    st.markdown("""
+    My name is Dhairya Mehta, and I’m a 14-year-old chess player with a deep passion for the game.
+    I currently hold a USCF rating of 2150 and have competed in over 150 tournaments across the country.
 
-        In addition to playing competitively, I enjoy teaching others and sharing what I’ve learned.
-        I’ve run a
+    In addition to playing competitively, I enjoy teaching others and sharing what I’ve learned.
+    I’ve run a chess summer camp, where I coached younger players in a fun and supportive environment,
+    and I’ve also conducted one-on-one coaching sessions with students looking to improve their game.
+    Whether you’re just starting out or looking to take your skills to the next level,
+    I’m excited to help you grow and enjoy the game as much as I do.
+    """)  # 👈 THIS closes the markdown block
