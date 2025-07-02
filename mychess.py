@@ -29,7 +29,7 @@ st.markdown("""
 
 # Sidebar
 st.sidebar.image("https://i.postimg.cc/vBZcwTSH/Chat-GPT-Image-Jul-2-2025-10-04-14-AM.png", width=200)
-page = st.sidebar.radio("Navigate", ["Home", "About Us", "Chess"])
+page = st.sidebar.radio("Navigate", ["Home", "About Us", "Chess", "Summer Camp"])
 
 # Home
 if page == "Home":
@@ -101,3 +101,14 @@ Beyond cognitive benefits, chess also fosters patience, discipline, and resilien
 and personal success. As students navigate complex challenges both on and off the board, chess equips them with a mindset  
 of perseverance and ability to make wise decisions, making it a valuable addition to a child’s growth.
 """)
+
+# Summer Camp
+elif page == "Summer Camp":
+    st.title("Chess Summer Camp 2025 🏕️")
+    st.markdown("Join our exciting summer chess camp! Designed for players of all levels.")
+    
+    flyer_url = "https://i.postimg.cc/vBL9yDy4/HOPKINGTON-CHURCH-1.png"
+    flyer_response = requests.get(flyer_url)
+    flyer_image = Image.open(BytesIO(flyer_response.content))
+    st.image(flyer_image, caption="Hopkinton Chess Camp 2025", use_container_width=True)
+
