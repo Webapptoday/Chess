@@ -62,12 +62,15 @@ st.markdown('<h2 id="coaches">Meet Our Coaches</h2>', unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 
 with col1:
-    st.image("https://via.placeholder.com/200x200?text=Dhairya", caption="Dhairya Mehta (USCF 2150)", use_column_width=True)
+    st.image("https://i.postimg.cc/5yYQhDY7/Untitled-design-2025-07-02-T093341-074.png", 
+             caption="Dhairya Mehta (USCF 2150)", use_column_width=True)
     st.write("Over 150 tournaments • Summer camp coach")
 
 with col2:
-    st.image("https://via.placeholder.com/200x200?text=Shouri", caption="Shouri Mosaliganti (USCF 1700)", use_column_width=True)
+    st.image("https://i.postimg.cc/d3bZwnGq/Untitled-design-2025-07-02-T093312-238.png", 
+             caption="Shouri Mosaliganti (USCF 1700)", use_column_width=True)
     st.write("180+ tournaments • Experienced youth coach")
+
 
 # PRICING
 st.markdown('<h2 id="pricing">Pricing</h2>', unsafe_allow_html=True)
