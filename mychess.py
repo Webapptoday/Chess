@@ -3,10 +3,8 @@ from PIL import Image
 import requests
 from io import BytesIO
 
-# Configure page
 st.set_page_config(page_title="SCN", layout="wide")
 
-# Custom styling
 st.markdown("""
     <style>
         .stApp {
@@ -25,7 +23,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Sidebar and navigation
 with st.sidebar:
     st.image("https://i.postimg.cc/vBZcwTSH/Chat-GPT-Image-Jul-2-2025-10-04-14-AM.png", width=150)
     page = st.radio("Navigate", [
@@ -40,7 +37,6 @@ with st.sidebar:
 if page == "Home":
     st.title("Welcome to SCN")
     st.subheader("Student Chess Network")
-
     st.markdown("""
     We offer high-quality, student-led chess coaching for all levels:
     - One-on-one personalized sessions  
@@ -53,7 +49,7 @@ if page == "Home":
     home_img_url = "https://i.postimg.cc/8C32BPfn/image-2.png"
     response_home = requests.get(home_img_url)
     home_img = Image.open(BytesIO(response_home.content))
-    st.image(home_img, caption="SCN Chess Coaching", use_column_width=True)
+    st.image(home_img, caption="SCN Chess Coaching", use_container_width=True)
 
 # About Us Page
 elif page == "About Us":
@@ -64,7 +60,7 @@ elif page == "About Us":
         dhairya_url = "https://i.postimg.cc/5yYQhDY7/Untitled-design-2025-07-02-T093341-074.png"
         response1 = requests.get(dhairya_url)
         dhairya_img = Image.open(BytesIO(response1.content))
-        st.image(dhairya_img, caption="Dhairya Mehta (USCF 2150)", use_column_width=True)
+        st.image(dhairya_img, caption="Dhairya Mehta (USCF 2150)", use_container_width=True)
         st.markdown("""
 **Dhairya Mehta**  
 📧 mehtadhairya11@gmail.com  
@@ -84,7 +80,7 @@ I’m excited to help you grow and enjoy the game as much as I do.
         shouri_url = "https://i.postimg.cc/d3bZwnGq/Untitled-design-2025-07-02-T093312-238.png"
         response2 = requests.get(shouri_url)
         shouri_img = Image.open(BytesIO(response2.content))
-        st.image(shouri_img, caption="Shouri Mosaliganti (USCF 1700)", use_column_width=True)
+        st.image(shouri_img, caption="Shouri Mosaliganti (USCF 1700)", use_container_width=True)
         st.markdown("""
 **Shouri Mosaliganti**  
 📧 28stu521@lexingtonma.org  
@@ -106,7 +102,7 @@ elif page == "Why Chess is the Best Move":
     image_url = "https://i.postimg.cc/J0HS2wZ4/image.png"
     image_resp = requests.get(image_url)
     img = Image.open(BytesIO(image_resp.content))
-    st.image(img, use_column_width=True)
+    st.image(img, use_container_width=True)
 
     st.markdown("""
 Learning to play chess offers students an opportunity to sharpen their intellect and develop essential life skills.  
@@ -127,7 +123,7 @@ elif page == "Summer Camp":
     flyer_image = Image.open(BytesIO(flyer_response.content))
 
     st.markdown('<div class="full-width-img">', unsafe_allow_html=True)
-    st.image(flyer_image, caption="Hopkinton Chess Camp 2025")
+    st.image(flyer_image, caption="Hopkinton Chess Camp 2025", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.header("Pricing")
@@ -146,5 +142,5 @@ elif page == "Motivation":
     image = Image.open(BytesIO(image_response.content))
 
     st.markdown('<div class="full-width-img">', unsafe_allow_html=True)
-    st.image(image)
+    st.image(image, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
