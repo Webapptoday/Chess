@@ -98,19 +98,13 @@ elif page == "Why Chess is the Best Move":
 # --- Summer Camp ---
 elif page == "Summer Camp":
     st.title("Summer Chess Camp 2025")
-    st.markdown("**Hosted in Hopkinton** | All levels welcome | Snacks and trophies provided")
+    flyer_url = "https://i.postimg.cc/vBL9yDy4/HOPKINGTON-CHURCH-1.png"
+    flyer_response = requests.get(flyer_url)
+    flyer_image = Image.open(BytesIO(flyer_response.content))
 
-    flyer = Image.open(BytesIO(requests.get("https://i.postimg.cc/vBL9yDy4/HOPKINGTON-CHURCH-1.png").content))
-    st.image(flyer, caption="Hopkinton Chess Camp 2025", use_container_width=True)
-
-    st.markdown("""
-### Camp Highlights:
-- Tactics & endgames  
-- Fun team competitions  
-- Rated simul matches  
-- Strategy lessons with analysis boards  
-- Prize ceremonies and raffle draws  
-    """)
+    st.markdown('<div class="full-width-img">', unsafe_allow_html=True)
+    st.image(flyer_image, caption="Hopkinton Chess Camp 2025", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.header("Pricing")
     st.markdown("""
@@ -119,7 +113,8 @@ elif page == "Summer Camp":
 - 🎁 Free 1-on-1 trial class with every camper!
     """)
 
-   st.link_button("Register Now", "https://forms.gle/fvagn29qQTBpXq1P6")
+    st.link_button("Register Now", "https://forms.gle/fvagn29qQTBpXq1P6")
+
 
 
     st.subheader("Testimonials")
