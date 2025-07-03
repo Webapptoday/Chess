@@ -148,8 +148,7 @@ elif page == "Book a Class":
 Use our form or book directly below.
     """)
 
-  st.link_button("Sign Up via Google Form", "https://forms.gle/fvagn29qQTBpXq1P6")
-
+    st.link_button("Sign Up via Google Form", "https://forms.gle/fvagn29qQTBpXq1P6")
 
     st.subheader("Or reserve using our calendar:")
     st.markdown("""
