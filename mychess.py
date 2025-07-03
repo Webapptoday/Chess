@@ -119,7 +119,8 @@ elif page == "Summer Camp":
 - 🎁 Free 1-on-1 trial class with every camper!
     """)
 
-    st.link_button("Register Now", "https://docs.google.com/forms/d/e/1FAIpQLSe-example")
+   st.link_button("Register Now", "https://forms.gle/fvagn29qQTBpXq1P6")
+
 
     st.subheader("Testimonials")
     st.info("“The camp was amazing! My son loved it and learned so much.” – Parent, 2023")
@@ -152,7 +153,8 @@ elif page == "Book a Class":
 Use our form or book directly below.
     """)
 
-    st.link_button("Sign Up via Google Form", "https://docs.google.com/forms/d/e/1FAIpQLSe-example")
+  st.link_button("Sign Up via Google Form", "https://forms.gle/fvagn29qQTBpXq1P6")
+
 
     st.subheader("Or reserve using our calendar:")
     st.markdown("""
